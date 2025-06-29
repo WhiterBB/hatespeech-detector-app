@@ -13,6 +13,10 @@ import time
 from .whisper_transcribe import transcribe
 from .predict import predict_text
 
+BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+TEMP_UPLOADS_DIR = os.path.join(BASE_DIR, "..", "temp_uploads")
+RESULTS_DIR = os.path.join(BASE_DIR, "..", "results")
+
 async def http_exception_handler(request: Request, exc: HTTPException):
     return JSONResponse(
         status_code=exc.status_code,
@@ -65,16 +69,14 @@ async def analyze_video(file: UploadFile = File(...)):
     if not file.content_type.startswith("video/"):
         raise HTTPException(status_code=400, detail="Unsupported file format. Please upload a video.")
     
-    results_dir = "results"
-    os.makedirs(results_dir, exist_ok=True)
-    cleanup_old_results(results_dir, expiration_minutes=30)
+    os.makedirs(RESULTS_DIR, exist_ok=True)
+    cleanup_old_results(RESULTS_DIR, expiration_minutes=30)
 
     try:
         # Create a temporary directory to store the uploaded video
-        temp_dir = "temp_uploads"
-        os.makedirs(temp_dir, exist_ok=True)
+        os.makedirs(TEMP_UPLOADS_DIR, exist_ok=True)
         video_id = str(uuid.uuid4())
-        temp_video_path = os.path.join(temp_dir, f"{video_id}_{file.filename}")
+        temp_video_path = os.path.join(TEMP_UPLOADS_DIR, f"{video_id}_{file.filename}")
 
         with open(temp_video_path, "wb") as buffer:
             shutil.copyfileobj(file.file, buffer)
@@ -105,9 +107,8 @@ async def analyze_video(file: UploadFile = File(...)):
             "video_id": video_id,
             "data": results
         }
-        results_dir = "results"
-        os.makedirs(results_dir, exist_ok=True)
-        results_file_path = os.path.join(results_dir, f"{video_id}.json")
+        os.makedirs(RESULTS_DIR, exist_ok=True)
+        results_file_path = os.path.join(RESULTS_DIR, f"{video_id}.json")
         with open(results_file_path, "w") as results_file:
             json.dump(final_output, results_file, indent=2)
 
@@ -125,7 +126,7 @@ async def analyze_video(file: UploadFile = File(...)):
 async def get_analysis_result(video_id: str = Path(..., description="The UUID of the analyzed video")):
     try:
         # Construct the path to the saved result JSON file
-        results_path = os.path.join("results", f"{video_id}.json")
+        results_path = os.path.join(RESULTS_DIR, f"{video_id}.json")
 
         # Check if the file exists
         if not os.path.exists(results_path):

@@ -2,13 +2,16 @@ from transformers import AutoTokenizer, AutoModelForSequenceClassification
 import torch
 import torch.nn.functional as F
 from typing import Tuple
+import os
+
+BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+MODEL_CACHE_DIR = os.path.join(BASE_DIR, "..", "model_cache")
 
 # Load the model and tokenizer
 model_path = "WhiterBB/multilingual-hatespeech-detection"
-cache_dir = "./model_cache"
 print(f"🔍 Loading model from: {model_path}")
-tokenizer = AutoTokenizer.from_pretrained(model_path, cache_dir=cache_dir)
-model = AutoModelForSequenceClassification.from_pretrained(model_path, cache_dir=cache_dir)
+tokenizer = AutoTokenizer.from_pretrained(model_path, cache_dir=MODEL_CACHE_DIR)
+model = AutoModelForSequenceClassification.from_pretrained(model_path, cache_dir=MODEL_CACHE_DIR)
 
 # Prepare the model for inference
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
