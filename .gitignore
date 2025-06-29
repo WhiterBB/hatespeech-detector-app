@@ -15,6 +15,12 @@ model_cache/
 # Whisper output / temporales
 temp_uploads/
 
+# Video Samples
+**/samples/
+
+# JSON Results
+results/
+
 # VSCode
 .vscode/
 
