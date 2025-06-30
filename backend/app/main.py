@@ -3,6 +3,7 @@ from fastapi.responses import JSONResponse
 from fastapi.exception_handlers import RequestValidationError
 from fastapi.exceptions import HTTPException
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.staticfiles import StaticFiles
 from starlette.status import HTTP_500_INTERNAL_SERVER_ERROR
 import traceback
 import shutil
@@ -57,12 +58,13 @@ def cleanup_old_results(results_dir: str, expiration_minutes: int = 30):
 
 app = FastAPI()
 
+app.mount("/", StaticFiles(directory="app/dist", html=True), name="static")
 app.add_exception_handler(HTTPException, http_exception_handler)
 app.add_exception_handler(RequestValidationError, validation_exception_handler)
 app.add_exception_handler(Exception, unhandled_exception_handler)
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["http://localhost:5173"], 
+    allow_origins=["https://h8less.onrender.com"], 
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
