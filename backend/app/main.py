@@ -58,7 +58,7 @@ def cleanup_old_results(results_dir: str, expiration_minutes: int = 30):
 
 app = FastAPI()
 
-app.mount("/", StaticFiles(directory="app/dist", html=True), name="static")
+app.mount("/", StaticFiles(directory="backend/app/dist", html=True), name="static")
 app.add_exception_handler(HTTPException, http_exception_handler)
 app.add_exception_handler(RequestValidationError, validation_exception_handler)
 app.add_exception_handler(Exception, unhandled_exception_handler)
