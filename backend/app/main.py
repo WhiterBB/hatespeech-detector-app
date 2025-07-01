@@ -72,6 +72,7 @@ app.add_middleware(
 
 @app.post("/analyze")
 async def analyze_video(file: UploadFile = File(...)):
+    start_total = time.perf_counter()
     if not file:
         raise HTTPException(status_code=400, detail="No file was uploaded.")
 
@@ -83,17 +84,25 @@ async def analyze_video(file: UploadFile = File(...)):
 
     try:
         # Create a temporary directory to store the uploaded video
+        t0 = time.perf_counter()
         os.makedirs(TEMP_UPLOADS_DIR, exist_ok=True)
         video_id = str(uuid.uuid4())
         temp_video_path = os.path.join(TEMP_UPLOADS_DIR, f"{video_id}_{file.filename}")
 
         with open(temp_video_path, "wb") as buffer:
             shutil.copyfileobj(file.file, buffer)
-
+        
+        t1 = time.perf_counter()
+        print(f"File {file.filename} uploaded successfully in {t1 - t0:.2f} seconds.")
+        
         # Step 1: Transcribe the video
+        t2 = time.perf_counter()
         segments = transcribe(temp_video_path)
+        t3 = time.perf_counter()
+        print(f"Transcription completed in {t3 - t2:.2f} seconds.")
 
         # Step 2: Predict hate speech on each segment
+        t4 = time.perf_counter()
         results = []
         for segment in segments:
             text = segment["text"]
@@ -106,6 +115,8 @@ async def analyze_video(file: UploadFile = File(...)):
                 "class_predicted": pred_label,
                 "probability": round(prob, 4)
             })
+        t5 = time.perf_counter()
+        print(f"Prediction completed in {t5 - t4:.2f} seconds.")
 
         # Delete the uploaded video after processing
         os.remove(temp_video_path)
@@ -120,6 +131,10 @@ async def analyze_video(file: UploadFile = File(...)):
         results_file_path = os.path.join(RESULTS_DIR, f"{video_id}.json")
         with open(results_file_path, "w") as results_file:
             json.dump(final_output, results_file, indent=2)
+        
+        t6 = time.perf_counter()
+        print(f"Results saved in {results_file_path} in {t6 - t5:.2f} seconds.")
+        print(f"Total processing time: {t6 - start_total:.2f} seconds.")
 
         # Return the final output as a JSON response    
         return JSONResponse(content=final_output)
