@@ -6,14 +6,15 @@ import VideoAnalysis from "./components/VideoAnalysis";
 import "@fontsource/orbitron/700.css";
 import "@fontsource/space-grotesk/700.css";
 
-const BASE_URL = import.meta.env.VITE_API_URL;
-
 type HateSegment = {
   start: number;
   end: number;
   score: number;
   label: string;
 };
+
+const BASE_URL = import.meta.env.VITE_API_URL;
+console.log("BASE_URL used:", BASE_URL);
 
 const App: React.FC = () => {
   const [videoURL, setVideoURL] = useState<string | null>(null);
