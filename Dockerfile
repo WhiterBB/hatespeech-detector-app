@@ -1,5 +1,8 @@
 FROM node:20 AS frontend-builder
 
+ARG VITE_API_URL
+ENV VITE_API_URL=$VITE_API_URL
+
 WORKDIR /app/frontend
 COPY frontend/ ./
 RUN npm install && npm run build
