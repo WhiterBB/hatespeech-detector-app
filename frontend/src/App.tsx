@@ -14,7 +14,6 @@ type HateSegment = {
 };
 
 const BASE_URL = import.meta.env.VITE_API_URL;
-console.log("BASE_URL used:", BASE_URL);
 
 const App: React.FC = () => {
   const [videoURL, setVideoURL] = useState<string | null>(null);
@@ -88,7 +87,7 @@ const App: React.FC = () => {
           playerRef={playerRef}
         />
 
-        {videoURL && segments.length > 0 && (
+        {videoURL && (
           <VideoAnalysis
             hateSegments={segments}
             videoDuration={videoDuration}

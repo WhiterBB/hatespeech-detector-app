@@ -46,7 +46,6 @@
 * ![React](https://img.shields.io/badge/React-61DAFB?style=for-the-badge&logo=react&logoColor=black)
 * ![Docker](https://img.shields.io/badge/Docker-2496ED?style=for-the-badge&logo=docker&logoColor=white)
 * ![Python](https://img.shields.io/badge/Python-3776AB?style=for-the-badge&logo=python&logoColor=white)
-* ![Node.js](https://img.shields.io/badge/Node.js-339933?style=for-the-badge&logo=node-dot-js&logoColor=white)
 * ![Whisper](https://img.shields.io/badge/Whisper-555?style=for-the-badge)
 * ![XLM-RoBERTa](https://img.shields.io/badge/XLM--RoBERTa-ffcc00?style=for-the-badge&logo=huggingface&logoColor=black)
 * ![Hugging Face](https://img.shields.io/badge/Hugging--Face-FFBF00?style=for-the-badge&logo=huggingface&logoColor=black)
@@ -64,6 +63,62 @@
 
 ---
 
+## 🚀 Getting Started (Docker)
+
+### 🔧 Requirements
+
+- Docker Engine (v20+)
+- Git
+
+### 📁 Clone & Run
+
+```bash
+# Clone the repository
+git clone https://github.com/WhiterBB/hatespeech-detector-app.git
+cd hatespeech-detector-app
+
+# Build the image
+docker build -t h8less-final .
+
+# Run the container
+docker run -p 8000:8000 h8less-final
+```
+
+Visit [http://localhost:8000](http://localhost:8000) in your browser.
+
+---
+
+## 🔐 Environment Variables
+
+The system is configured with separate `.env` files for production and development.
+
+### Backend
+
+| File               | Purpose                      |
+| ------------------ | ---------------------------- |
+| `.env.production`  | Used automatically in Docker |
+| `.env.development` | Optional for local dev       |
+
+Example:
+
+```env
+ENV_MODE=production
+```
+
+### Frontend
+
+| File               | Purpose                       |
+| ------------------ | ----------------------------- |
+| `.env.production`  | Sets VITE\_API\_URL for prod  |
+| `.env.development` | Sets VITE\_API\_URL for local |
+
+Example:
+
+```env
+VITE_API_URL=http://localhost:8000
+```
+
+---
 
 ## 🧬 Model Details
 
@@ -98,32 +153,52 @@ hatespeech-detector-app/
 │   ├── temp_uploads/                # Temporary video storage
 │   ├── model_cache/                 # Hugging Face cache directory
 │   └── tests/                       # Pytest test cases
-├── frontend/                        # [WIP] React-based web client
+├── frontend/
+│   ├── src/
+│   ├── .env.production              # VITE_API_URL for production
+│   ├── .env.development             # VITE_API_URL for local
+├── Dockerfile
+├── LICENSE
+├── README.md
 ```
 
 ---
 
 ## 🧪 Testing
 
-You can run tests for the backend using `pytest`. Make sure you have a sample video in `backend/tests/samples/`.
+The backend includes `pytest` test cases for local development.
+To run them manually:
 
 ```bash
 cd backend
-$env:PYTHONPATH="." pytest tests -v
+pytest tests -v
 ```
 
 Tests include:
 
 - ✅ Video upload and analysis
 - ✅ Retrieval of JSON results
-- ❌ Error handling: no file / invalid format
 
 ---
 
-## ⏩ Coming Soon
+## 🚰 Cleaning Up
 
-- 🧩 Frontend with timeline visualizer and multilingual UI
-- 🐳 Docker container for unified deployment
-- 🌍 API documentation with Swagger/OpenAPI
+To remove the image and container:
 
----
+```bash
+# Stop container
+docker ps
+# docker stop <container_id>
+
+# Remove container and image
+docker rm <container_id>
+docker rmi h8less-final
+```
+
+## 📄 License
+
+MIT License – feel free to use for academic and non-commercial projects.
+
+## ✍️ Author
+
+Made with ❤️ by [WhiterBB](https://github.com/WhiterBB) as part of a final master's thesis (TFM) in Artificial Intelligence.

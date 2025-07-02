@@ -1,8 +1,11 @@
 fastapi
 uvicorn
-openai-whisper
+faster-whisper
+huggingface_hub[hf_xet]
 ffmpeg-python
 python-multipart
 filelock==3.13.1
 transformers
 torch
+python-dotenv
+psutil

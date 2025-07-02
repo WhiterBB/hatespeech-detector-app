@@ -4,6 +4,7 @@ from fastapi.exception_handlers import RequestValidationError
 from fastapi.exceptions import HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
+from dotenv import load_dotenv
 from starlette.status import HTTP_500_INTERNAL_SERVER_ERROR
 import traceback
 import shutil
@@ -18,6 +19,12 @@ from .predict import predict_text
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 TEMP_UPLOADS_DIR = os.path.join(BASE_DIR, "..", "temp_uploads")
 RESULTS_DIR = os.path.join(BASE_DIR, "..", "results")
+
+# Load environment variables from .env file based on ENV_MODE
+env_mode = os.getenv("ENV_MODE", "development")
+env_file = os.path.join(os.path.dirname(__file__), "..", f".env.{env_mode}")
+load_dotenv(dotenv_path=env_file)
+allowed_origins = os.getenv("ALLOWED_ORIGINS", "*").split(",")
 
 async def http_exception_handler(request: Request, exc: HTTPException):
     return JSONResponse(
@@ -63,7 +70,7 @@ app.add_exception_handler(RequestValidationError, validation_exception_handler)
 app.add_exception_handler(Exception, unhandled_exception_handler)
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["https://h8less.up.railway.app"], 
+    allow_origins=allowed_origins, 
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
@@ -72,6 +79,7 @@ app.add_middleware(
 
 @app.post("/analyze")
 async def analyze_video(file: UploadFile = File(...)):
+    print("Received file for analysis:", file.filename)
     start_total = time.perf_counter()
     if not file:
         raise HTTPException(status_code=400, detail="No file was uploaded.")
