@@ -14,7 +14,7 @@ import json
 import time
 
 from .whisper_transcribe import transcribe
-from .predict import predict_text
+from .predict import predict_texts
 
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 TEMP_UPLOADS_DIR = os.path.join(BASE_DIR, "..", "temp_uploads")
@@ -109,22 +109,29 @@ async def analyze_video(file: UploadFile = File(...)):
         t3 = time.perf_counter()
         print(f"Transcription completed in {t3 - t2:.2f} seconds.")
 
-        # Step 2: Predict hate speech on each segment
+        # Step 2: Predict hate speech on all segments (batch mode)
         t4 = time.perf_counter()
         results = []
-        for segment in segments:
-            text = segment["text"]
-            pred_label, prob = predict_text(text)
+
+        # Collect all texts from segments
+        all_texts = [segment["text"] for segment in segments]
+
+        # Import the predict_texts function from predict.py
+        batch_predictions = predict_texts(all_texts)
+
+        # Pair predictions with segments
+        for segment, (pred_label, prob) in zip(segments, batch_predictions):
             results.append({
                 "id": segment["id"],
                 "start": segment["start"],
                 "end": segment["end"],
-                "text": text.strip(),
+                "text": segment["text"].strip(),
                 "class_predicted": pred_label,
                 "probability": round(prob, 4)
             })
+
         t5 = time.perf_counter()
-        print(f"Prediction completed in {t5 - t4:.2f} seconds.")
+        print(f"Batch prediction completed in {t5 - t4:.2f} seconds.")
 
         # Delete the uploaded video after processing
         os.remove(temp_video_path)

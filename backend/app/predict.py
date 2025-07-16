@@ -24,20 +24,31 @@ id2label = {
     1: "hate"
 }
 
-def predict_text(text: str) -> Tuple[str, float]:
+def predict_texts(texts: list[str]) -> list[tuple[str, float]]:
     """
-    Predict the class of the given text
+    Batch prediction for a list of texts.
+    Returns a list of tuples: (label, confidence)
     """
-    inputs = tokenizer(text, return_tensors="pt", truncation=True, padding=True, max_length=128)
+    # Tokenize the input texts
+    inputs = tokenizer(
+        texts,
+        return_tensors="pt",
+        truncation=True,
+        padding=True,
+        max_length=128
+    )
     inputs = {k: v.to(device) for k, v in inputs.items()}
 
     with torch.no_grad():
         outputs = model(**inputs)
-        logits = outputs.logits
-        probs = F.softmax(logits, dim=-1).squeeze()
+        probs = F.softmax(outputs.logits, dim=-1)  
 
-    pred_class = torch.argmax(probs).item()
-    label = id2label[pred_class]
-    confidence = probs[pred_class].item()
+    results = []
+    for p in probs:
+        pred_class = torch.argmax(p).item()
+        label = id2label[pred_class]
+        confidence = p[pred_class].item()
+        results.append((label, confidence))
 
-    return label, confidence
+    return results
+
